@@ -118,6 +118,22 @@ a{color:inherit;text-decoration:none}
 @media(max-width:720px){.grid{grid-template-columns:1fr}.emblem{right:-150px;top:30px;opacity:.55}.sh .no{font-size:64px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.it{opacity:1;transform:none}}
 </style>
+
+<style>
+#godoliasQrLaunch{position:fixed;right:18px;bottom:18px;z-index:1000;border:0;border-radius:999px;padding:14px 20px;background:#f4b73f;color:#06100c;font:700 15px system-ui;box-shadow:0 8px 28px #0008;cursor:pointer}
+#godoliasQrShade{display:none;position:fixed;inset:0;z-index:1001;background:#000b;align-items:center;justify-content:center;padding:18px}
+#godoliasQrShade.open{display:flex}
+#godoliasQrPanel{width:min(100%,380px);background:#f7f0df;color:#24160f;border-radius:20px;padding:24px;text-align:center;box-shadow:0 18px 60px #0009;font-family:system-ui,sans-serif}
+#godoliasQrPanel h2{font-size:22px;margin:0 0 8px;color:#492819}
+#godoliasQrPanel p{font-size:14px;margin:0 0 16px}
+#godoliasQrCode{background:#fff;padding:12px;width:240px;height:240px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;border-radius:10px}
+#godoliasQrCode img,#godoliasQrCode canvas{max-width:100%;height:auto}
+.godoliasQrActions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.godoliasQrActions button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}
+#godoliasQrDownload{background:#1b5b3d;color:#fff}
+#godoliasQrClose{background:#e8d9bd;color:#2c1b12}
+@media print{#godoliasQrLaunch,#godoliasQrShade{display:none!important}}
+</style>
 </head>
 <body>
 <div class="tilet"></div>
@@ -359,5 +375,42 @@ var t=document.getElementById('top');addEventListener('scroll',function(){t.clas
 t.addEventListener('click',function(e){e.preventDefault();scrollTo({top:0,behavior:'smooth'})});
 })();
 </script>
+
+<button id="godoliasQrLaunch" type="button" aria-haspopup="dialog">▦ Menu QR</button>
+<div id="godoliasQrShade" role="dialog" aria-modal="true" aria-labelledby="godoliasQrTitle">
+ <div id="godoliasQrPanel">
+  <h2 id="godoliasQrTitle">ጎዶልያስ · Menu QR</h2>
+  <p>Scan to open this digital menu on a phone.</p>
+  <div id="godoliasQrCode" aria-label="QR code for this menu"></div>
+  <div class="godoliasQrActions">
+   <button id="godoliasQrDownload" type="button">Download QR PNG</button>
+   <button id="godoliasQrClose" type="button">Close</button>
+  </div>
+ </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script>
+(function(){
+ var launch=document.getElementById('godoliasQrLaunch'),shade=document.getElementById('godoliasQrShade'),holder=document.getElementById('godoliasQrCode'),made=false;
+ function openQr(){
+  shade.classList.add('open');
+  if(made)return;
+  if(typeof QRCode==='undefined'){holder.textContent='QR generator could not load. Check your internet connection and reload.';return}
+  new QRCode(holder,{text:window.location.href.split('#')[0],width:216,height:216,colorDark:'#111111',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  made=true;
+ }
+ launch.addEventListener('click',openQr);
+ document.getElementById('godoliasQrClose').addEventListener('click',function(){shade.classList.remove('open')});
+ shade.addEventListener('click',function(e){if(e.target===shade)shade.classList.remove('open')});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')shade.classList.remove('open')});
+ document.getElementById('godoliasQrDownload').addEventListener('click',function(){
+  var canvas=holder.querySelector('canvas'),img=holder.querySelector('img'),url='';
+  if(canvas)url=canvas.toDataURL('image/png');else if(img&&img.src)url=img.src;
+  if(!url){alert('QR code is still loading. Please try again.');return}
+  var a=document.createElement('a');a.href=url;a.download='godolias-menu-qr.png';document.body.appendChild(a);a.click();a.remove();
+ });
+})();
+</script>
+
 </body>
 </html>
